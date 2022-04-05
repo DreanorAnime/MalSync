@@ -13,64 +13,73 @@ namespace MalSync
         public static void Main(string[] args)
         {
             Program p = new Program();
-            try
+            Console.Write("Kitsu User: ");
+            string user = Console.ReadLine();
+
+            Console.Write("Kitsu Password: ");
+            string password = null;
+            while (true)
             {
-                Console.Write("user: ");
-                string user = Console.ReadLine();
-                
-                Console.Write("password: ");
-                string password = null;
-                while (true)
-                {
-                    var key = Console.ReadKey(true);
-                    if (key.Key == ConsoleKey.Enter)
-                        break;
-                    password += key.KeyChar;
-                }
-                Console.WriteLine();
-                
-                p.Run(user, password);
+                var key = Console.ReadKey(true);
+                if (key.Key == ConsoleKey.Enter)
+                    break;
+                password += key.KeyChar;
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+
+            Console.WriteLine();
+
+            p.Run(user, password);
             Console.ReadLine();
         }
 
         private async Task Run(string username, string password)
         {
-            //auth
-            var auth = await Authentication.Authenticate(username, password);
-            int kitsuUserId = await User.GetUserAsync(username);
-            Console.WriteLine("authenticated.");
-
-            //get userupdates
-            var historyJson = await Api.Client.GetStringAsync($"https://api.jikan.moe/v4/users/{username}/userupdates");
-            UserUpdates userUpdates = JsonConvert.DeserializeObject<UserUpdates>(historyJson);
-
-            foreach (var userUpdate in userUpdates.data.anime)
+            try
             {
-                var kitsuJson = await Api.Client.GetStringAsync($"https://kitsu.io/api/edge/anime?filter[text]={userUpdate.entry.title}");
-                dynamic kitsuObject = JsonConvert.DeserializeObject(kitsuJson);
-                var kitsuData = kitsuObject.data[0];
-                int id = kitsuData.id;
-                
-                await UpdateKitsu(userUpdate.entry.title, kitsuUserId, id, userUpdate.episodes_seen, userUpdate.score, userUpdate.status);
+                //auth
+                Console.WriteLine("Authenticating...");
+                var auth = await Authentication.Authenticate(username, password);
+                var userData = await User.Get(username);
+                Console.WriteLine("Authenticated.");
+
+                //get userupdates
+                var historyJson = await Mal.User.GetUserUpdates(username);
+                UserUpdates userUpdates = JsonConvert.DeserializeObject<UserUpdates>(historyJson);
+
+                Console.WriteLine("Checking for updates...");
+                foreach (var userUpdate in userUpdates.data.anime)
+                {
+                    var animeJson = await Kitsu.Anime.FindAnime(userUpdate.entry.title);
+                    dynamic animeObject = JsonConvert.DeserializeObject(animeJson);
+                    var kitsuData = animeObject.data[0];
+
+                    await UpdateKitsu(userUpdate.entry.title, (int)userData.data[0].id, (int)kitsuData.id,
+                        userUpdate.episodes_seen, userUpdate.score, userUpdate.status);
+                }
+
+                Console.WriteLine("Done!");
             }
-            
-            Console.WriteLine("Done. Press any key to exit...");
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            finally
+            {
+                Console.WriteLine("Press any key to exit...");
+            }
         }
+
         private async Task UpdateKitsu(string entryTitle, int kitsuUserId, int animeId, int episodeNumber,
             int userUpdateScore, string userUpdateStatus)
         {
             //check for update
-            var kitsuJson = await Api.Client.GetStringAsync($"{Api.KitsuBaseUri}/users/{kitsuUserId}/library-entries?filter[animeId]={animeId}");
+            var kitsuJson = await User.GetLibrary(kitsuUserId, animeId);
             dynamic kitsuObject = JsonConvert.DeserializeObject(kitsuJson);
 
             if (kitsuObject.data[0].attributes.progress == episodeNumber)
             {
-                Console.WriteLine($"Already exists. (anime: {entryTitle} episode: {episodeNumber})");
+                Console.WriteLine($"Already exists. ({entryTitle} episode: {episodeNumber})");
                 return;
             }
 
@@ -84,7 +93,7 @@ namespace MalSync
             }
             else
             {
-                Console.WriteLine($"Updated anime. ({entryTitle} episode: {episodeNumber} score: {userUpdateScore} status: {status})");
+                Console.WriteLine($"Updated {entryTitle} episode: {episodeNumber} score: {userUpdateScore} status: {status}");
             }
         }
     }

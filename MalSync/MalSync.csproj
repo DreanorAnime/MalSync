@@ -45,11 +45,13 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="Kitsu\Anime.cs" />
         <Compile Include="Kitsu\Authentication.cs" />
         <Compile Include="Kitsu\Library.cs" />
         <Compile Include="Kitsu\Status.cs" />
         <Compile Include="Kitsu\User.cs" />
         <Compile Include="Api.cs" />
+        <Compile Include="Mal\User.cs" />
         <Compile Include="Mal\UserUpdates.cs" />
         <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />

@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Net.Http.Headers;
 
 namespace MalSync
@@ -11,6 +12,8 @@ namespace MalSync
         public const string KitsuBaseUri = "https://kitsu.io/api/edge";
         public const string KitsuBaseAuthUri = "https://kitsu.io/api/oauth";
         
+        public const string JikanBaseUri = "https://api.jikan.moe/v4";
+
         private static HttpClient RequestClient()
         {
             var client = new HttpClient();
