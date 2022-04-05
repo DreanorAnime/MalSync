@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using MalSync.Mal;
-using Newtonsoft.Json;
 using Authentication = MalSync.Kitsu.Authentication;
 using Library = MalSync.Kitsu.Library;
 using User = MalSync.Kitsu.User;
@@ -46,18 +44,16 @@ namespace MalSync
                 Console.WriteLine("UserId returned.");
 
                 //get userupdates
-                var historyJson = await Mal.User.GetUserUpdates(username);
-                UserUpdates userUpdates = JsonConvert.DeserializeObject<UserUpdates>(historyJson);
+                var userUpdates = await Mal.User.GetUserUpdates(username);
 
                 Console.WriteLine("Checking for updates...");
                 foreach (var userUpdate in userUpdates.data.anime)
                 {
-                    var animeJson = await Kitsu.Anime.FindAnime(userUpdate.entry.title);
-                    dynamic animeObject = JsonConvert.DeserializeObject(animeJson);
+                    var animeObject = await Kitsu.Anime.FindAnime((string)userUpdate.entry.title);
                     var kitsuData = animeObject.data[0];
 
-                    await UpdateKitsu(userUpdate.entry.title, (int)userData.data[0].id, (int)kitsuData.id,
-                        userUpdate.episodes_seen, userUpdate.score, userUpdate.status);
+                    await UpdateKitsu((string)userUpdate.entry.title, (int)userData.data[0].id, (int)kitsuData.id,
+                        (int)userUpdate.episodes_seen, (int)userUpdate.score, (string)userUpdate.status);
                 }
 
                 Console.WriteLine("Done!");
@@ -77,8 +73,7 @@ namespace MalSync
             int userUpdateScore, string userUpdateStatus)
         {
             //check for update
-            var kitsuJson = await User.GetLibrary(kitsuUserId, animeId);
-            dynamic kitsuObject = JsonConvert.DeserializeObject(kitsuJson);
+            var kitsuObject = await User.GetLibrary(kitsuUserId, animeId);
 
             if (kitsuObject.data[0].attributes.progress == episodeNumber)
             {

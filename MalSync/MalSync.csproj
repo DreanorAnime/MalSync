@@ -52,7 +52,6 @@
         <Compile Include="Kitsu\User.cs" />
         <Compile Include="Api.cs" />
         <Compile Include="Mal\User.cs" />
-        <Compile Include="Mal\UserUpdates.cs" />
         <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="StatusConverter.cs" />
