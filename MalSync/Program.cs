@@ -39,8 +39,11 @@ namespace MalSync
                 //auth
                 Console.WriteLine("Authenticating...");
                 var auth = await Authentication.Authenticate(username, password);
-                var userData = await User.Get(username);
                 Console.WriteLine("Authenticated.");
+
+                Console.WriteLine("Retrieving UserId...");
+                var userData = await User.Get(username);
+                Console.WriteLine("UserId returned.");
 
                 //get userupdates
                 var historyJson = await Mal.User.GetUserUpdates(username);
