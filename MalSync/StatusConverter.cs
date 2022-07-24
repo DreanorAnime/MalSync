@@ -5,24 +5,24 @@ namespace MalSync
 {
     public static class StatusConverter
     {
-        public static Status ConvertMalToKitsuStatus(string userUpdateStatus)
+        public static Status ConvertMalToKitsuStatus(int userUpdateStatus)
         {
             Status status = Status.Invalid;
-            switch (userUpdateStatus.ToLower())
+            switch (userUpdateStatus)
             {
-                case "watching":
+                case 1:
                     status = Status.current;
                     break;
-                case "completed":
+                case 2:
                     status = Status.completed;
                     break;
-                case "on_hold":
+                case 3:
                     status = Status.on_hold;
                     break;
-                case "dropped":
+                case 4:
                     status = Status.dropped;
                     break;
-                case "plan_to_watch":
+                case 6:
                     status = Status.planned;
                     break;
             }

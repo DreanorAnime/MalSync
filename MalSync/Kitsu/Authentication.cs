@@ -36,7 +36,7 @@ namespace MalSync.Kitsu
             return auth;
         }
 
-        private static string UppercaseFirst(string authToken)
+        public static string UppercaseFirst(string authToken)
         {
             if (string.IsNullOrEmpty(authToken))
             {

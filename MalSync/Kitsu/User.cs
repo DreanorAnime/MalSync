@@ -5,9 +5,9 @@ namespace MalSync.Kitsu
 {
     public class User
     {
-        public static async Task<dynamic> Get(string username)
+        public static async Task<dynamic> Get()
         {
-            var json = await Api.Client.GetStringAsync($"{Api.KitsuBaseUri}/users?filter[name]={username}");
+            var json = await Api.Client.GetStringAsync($"{Api.KitsuBaseUri}/users?filter[self]=true");
             return JsonConvert.DeserializeObject(json);
         }
         

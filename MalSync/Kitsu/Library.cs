@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Globalization;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace MalSync.Kitsu
@@ -16,6 +17,17 @@ namespace MalSync.Kitsu
                   ""attributes"":{ ""status"":""STATUS"", ""progress"":""EPISODE"", ""ratingTwenty"":""RATING"" }
                }
             }";
+            
+            if (rating == 0)
+            {
+                body = @"{  
+               ""data"":{  
+                  ""id"":ANIMEID,
+                  ""type"": ""library-entries"",
+                  ""attributes"":{ ""status"":""STATUS"", ""progress"":""EPISODE"" }
+               }
+            }";
+            }
 
             body = body.Replace("ANIMEID", animeId.ToString())
                 .Replace("EPISODE", episode.ToString())
