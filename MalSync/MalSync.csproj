@@ -165,6 +165,7 @@
         <Compile Include="Kitsu\Status.cs" />
         <Compile Include="Kitsu\User.cs" />
         <Compile Include="Api.cs" />
+        <Compile Include="Levenshtein.cs" />
         <Compile Include="Mal\User.cs" />
         <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />

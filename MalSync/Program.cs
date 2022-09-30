@@ -40,22 +40,41 @@ namespace MalSync
                 {
                     var animeObject = await Kitsu.Anime.FindAnime((string)entry.anime_title);
 
+                    Console.WriteLine($"Checking: {(string)entry.anime_title}");
                     dynamic kitsuData = null;
                     foreach (var obj in animeObject.data)
                     {
                         string malJP = (string)entry.anime_title;
                         string malEN = (string)entry.anime_title_eng;
-
+                        string malStartDate = (string)entry.anime_start_date_string; //14-07-22
+                        
                         string kitsuJP = (string)obj.attributes.titles.en_jp;
                         string kitsuEN = (string)obj.attributes.titles.en;
-
+                        string ktisuStartDate = (string)obj.attributes.startDate; // "2022-07-14"
+                        
                         if (!string.IsNullOrWhiteSpace(malEN) && !string.IsNullOrWhiteSpace(kitsuEN) && (malEN.Any(char.IsDigit) || kitsuEN.Any(char.IsDigit)))
                         {
                             malEN = ReplaceRoman(malEN);
                             kitsuEN = ReplaceRoman(kitsuEN);
                         }
+
+                        DateTime malDateParsed;
+                        DateTime kitsuDateParsed;
+
+                        var malParsable = DateTime.TryParse(malStartDate, out malDateParsed);
+                        var kitsuParsable = DateTime.TryParse(ktisuStartDate, out kitsuDateParsed);
                         
-                        if (malJP == kitsuJP || (!string.IsNullOrWhiteSpace(malEN) && !string.IsNullOrWhiteSpace(kitsuEN) && malEN == kitsuEN))
+                        var levJP = !string.IsNullOrWhiteSpace(malJP) && !string.IsNullOrWhiteSpace(kitsuJP)
+                            ? LevenshteinDistance.Calculate(malJP, kitsuJP)
+                            : 0;
+                        
+                        var levEN = !string.IsNullOrWhiteSpace(malEN) && !string.IsNullOrWhiteSpace(kitsuEN)
+                            ? LevenshteinDistance.Calculate(malEN, kitsuEN)
+                            : 0;
+                        
+                        if (malJP == kitsuJP 
+                            || !string.IsNullOrWhiteSpace(malEN) && !string.IsNullOrWhiteSpace(kitsuEN) && malEN == kitsuEN
+                            || malParsable && kitsuParsable && malDateParsed==kitsuDateParsed && (levJP < 3 || levEN < 3))
                         {
                             kitsuData = obj;
                             break;
